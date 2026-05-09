@@ -350,6 +350,97 @@ The paper's central thesis stands. Suggested revisions to the draft:
 - Update §1.5 power claim from "70% at δ > 0.0025" to "70% at δ > 0.005"
 - Fix the broken `\cite` keys (still pending from initial review)
 
+## Phase 6 — Statistical rigor + sensitivity + regime analysis (DONE)
+
+Three follow-up analyses to defend the Phase 3 and Phase 5 headline claims.
+
+### Item 1 — Statistical significance of the F1 differences
+
+5,000-iteration paired bootstrap, McNemar, and DeLong tests on the 132 persistence-labeled test candidates.
+
+| Method | F1 95% CI | Δ vs raw LOMN (bootstrap) | bootstrap p | McNemar p | DeLong AUC p |
+|---|---|---|---:|---:|---:|
+| Raw LOMN     | [0.624, 0.764] | — | — | — | — |
+| LOMN+XGB     | [0.704, 0.823] | **+0.069** [+0.018, +0.121] | **0.004** | 0.137 | 0.204 |
+| Pure ML      | [0.327, 0.513] | −0.273 [−0.383, −0.173] | <0.001 | <0.001 | <0.001 |
+| Lee-Mykland  | [0.430, 0.565] | −0.197 [−0.286, −0.105] | <0.001 | <0.001 | <0.001 |
+
+**Interpretation:** Bootstrap F1 says XGBoost beats raw LOMN at p=0.004; McNemar (p=0.14) and DeLong AUC (p=0.20) cannot reject equality. The improvement is real on the F1 metric the paper claims but small enough that paired tests on per-sample correctness or AUC don't reach significance. **Pure ML and Lee-Mykland are significantly worse than raw LOMN by all three tests.** The qualitative claim that "the hybrid framework outperforms pure-statistical and pure-ML baselines" is robustly supported; the quantitative claim that "ML refinement improves over raw LOMN" is supported on F1 but borderline on alternative measures.
+
+### Item 2 — Sensitivity to design choices
+
+Three free parameters were swept while holding the others at default values.
+
+**LOMN candidate threshold:**
+
+| threshold | F1 raw LOMN | F1 LOMN+XGB | Δ |
+|---:|---:|---:|---:|
+| 1.5 | 0.606 | 0.623 | +0.017 |
+| 2.0 | 0.606 | 0.623 | +0.017 |
+| 2.5 | 0.614 | 0.646 | +0.032 |
+| 3.0 | 0.638 | 0.688 | +0.050 |
+
+ML lift increases as the candidate set tightens.
+
+**Persistence positive z-threshold (definition of "real jump"):**
+
+| pos_z | F1 raw LOMN | F1 LOMN+XGB | Δ |
+|---:|---:|---:|---:|
+| 3.0 | 0.462 | 0.682 | +0.220 |
+| 4.0 | 0.578 | 0.658 | +0.080 |
+| 5.0 | 0.606 | 0.623 | +0.017 |
+| 6.0 | 0.510 | 0.552 | +0.042 |
+
+ML lift is largest under loose persistence definitions and remains positive across all settings.
+
+**LOMN block constant** `c` (h_n = round(c · n^(1/3))):
+
+| c | h_n | F1 raw LOMN | F1 LOMN+XGB | Δ |
+|---:|---:|---:|---:|---:|
+| 0.50 | 22 | 0.563 | 0.644 | +0.081 |
+| 0.75 | 33 | 0.620 | 0.590 | **−0.030** |
+| 1.00 | 44 | 0.606 | 0.623 | +0.017 |
+| 1.50 | 66 | 0.385 | 0.469 | +0.084 |
+| 2.00 | 88 | 0.278 | 0.000 | XGB collapses |
+
+The ML lift is positive at 4 of 5 settings. The exception at c=0.75 (Δ = −0.030) is a real anomaly to disclose. At c=2.00 too few candidates remain to train a usable XGBoost. **Recommend reporting c ∈ {0.5, 1.0, 1.5} as a robustness band; flag the c=0.75 anomaly.**
+
+### Item 4 — Regime stratification by realized-vol terciles
+
+Hours on test days split into terciles of hourly realized variance:
+
+| Method | Low-vol F1 | Mid-vol F1 | High-vol F1 |
+|---|---:|---:|---:|
+| Raw LOMN     | 0.364 | 0.593 | 0.623 |
+| Lee-Mykland  | 0.004 | 0.022 | 0.126 |
+| LOMN+XGB     | **0.545** | **0.656** | 0.617 |
+| Pure ML      | 0.286 | 0.278 | 0.466 |
+| **F1 lift (XGB − raw LOMN)** | **+0.182** | +0.064 | −0.006 |
+
+**Headline finding:** ML refinement gives a **+0.182 F1 lift in low-vol hours**, +0.064 in mid-vol, and essentially zero in high-vol. This is exactly what theory predicts: in low-vol regimes, false positives dominate the LOMN candidate stream and the XGBoost classifier removes them; in high-vol regimes, real jumps swamp noise and raw LOMN is already saturated. **This is publishable as a stand-alone contribution and reframes the "16% reduction" finding from Phase 3 as a regime-conditional effect.**
+
+Lee-Mykland's pulverization is also regime-dependent — F1=0.004 in low-vol confirms that the noise-firing problem is acute on calm hours. Even high-vol (F1=0.126) doesn't redeem it.
+
+### Phase 6 deliverables
+
+```
+results/phase6/
+  significance.json        bootstrap CIs + McNemar + DeLong outputs
+  sensitivity.csv          F1 at each sweep value
+  sensitivity.png          three panels: candidate threshold, persistence z, block constant
+  hourly_rv.csv            realized variance per hour per test day
+  regime_per_day.csv       per-day per-regime per-method TP/FP/FN
+  regime_summary.csv       aggregated F1 by regime and method
+  regime_f1.png            grouped bar chart of F1 by regime
+```
+
+### Additional paper-revision items
+
+- Add bootstrap 95% CIs to every F1 number in §1.5 and §5
+- Quote the regime stratification result as a separate finding ("ML refinement contributes most in low-vol hours, +0.182 F1 lift")
+- Add a sensitivity-band statement: "F1 lift over raw LOMN ranges +0.017 to +0.220 across reasonable design choices; one anomaly at c=0.75 is reported"
+- Report the McNemar/DeLong nonsignificance alongside the bootstrap-significant result — this is *more* convincing than reporting only one test that favors your method
+
 ## What's still open
 - Phase 2 Path A live L20 capture — start when ready
 - Re-run Phase 3 + Phase 5 on Path A data when it accumulates; expect modest improvement from deep-book features but not a step change

@@ -1,0 +1,36 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.Python
+.venv/
+venv/
+.pytest_cache/
+.ipynb_checkpoints/
+
+# Editor / OS
+.Rhistory
+.DS_Store
+desktop.ini
+*.swp
+*.swo
+.idea/
+.vscode/
+
+# Project — heavy data, never committed (anchored to repo root only)
+/data/
+*.parquet
+*.feather
+*.h5
+*.npz
+
+# Allow small model artefacts under results/ (we keep these for reproducibility).
+# Add explicit excludes here if any single weight file grows beyond ~10 MB.
+
+# Build output
+build/
+dist/
+*.egg-info/
+
+# Logs
+*.log
