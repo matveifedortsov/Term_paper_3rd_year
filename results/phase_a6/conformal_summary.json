@@ -1,0 +1,53 @@
+{
+  "config": {
+    "alpha": 0.1,
+    "calibration_fraction": 0.2,
+    "fit_days": [
+      "2024-03-15",
+      "2024-03-16",
+      "2024-03-17",
+      "2024-03-18",
+      "2024-03-19",
+      "2024-03-20",
+      "2024-03-21",
+      "2024-03-22",
+      "2024-03-23",
+      "2024-03-24"
+    ],
+    "cal_days": [
+      "2024-03-25",
+      "2024-03-26"
+    ],
+    "test_days": [
+      "2024-03-27",
+      "2024-03-28",
+      "2024-03-29"
+    ]
+  },
+  "calibration_metrics": {
+    "coverage": 0.9064039408866995,
+    "avg_set_size": 1.2167487684729064,
+    "abstain_rate": 0.21674876847290642,
+    "size_zero_pct": 0.0,
+    "size_one_pct": 0.7832512315270936,
+    "size_two_pct": 0.21674876847290642
+  },
+  "test_metrics": {
+    "coverage": 0.9078498293515358,
+    "avg_set_size": 1.2559726962457338,
+    "abstain_rate": 0.25597269624573377,
+    "size_zero_pct": 0.0,
+    "size_one_pct": 0.7440273037542662,
+    "size_two_pct": 0.25597269624573377
+  },
+  "q_hat": 0.758968710899353,
+  "singleton_perf": {
+    "singleton_n": 218,
+    "TP": 60,
+    "FP": 4,
+    "FN_global": 68,
+    "precision_singletons": 0.9375,
+    "recall_global": 0.46875,
+    "F1_singletons_only": 0.625
+  }
+}

@@ -441,6 +441,123 @@ results/phase6/
 - Add a sensitivity-band statement: "F1 lift over raw LOMN ranges +0.017 to +0.220 across reasonable design choices; one anomaly at c=0.75 is reported"
 - Report the McNemar/DeLong nonsignificance alongside the bootstrap-significant result — this is *more* convincing than reporting only one test that favors your method
 
+## Phase A — Engineering and methodology enhancements (DONE)
+
+Eight items added in this phase. Foundational infrastructure (config, tests, pipeline runner, hand-labeling tool) plus four methodology extensions (neural ensemble UQ, conformal prediction, LSTM ablation, Hawkes process).
+
+### A1 — Config management
+
+Single source of truth at `config/default.yaml` with all 60+ knobs (block sizes, thresholds, train/test splits, seeds, paths). Loader at `src.config.load_config()`. The `TERMPAPER_CONFIG` env var overrides the default. Modules import `from src.config import config` and read knobs as `config()["mc"]["base_seed"]` etc.
+
+### A2 — Pytest suite
+
+28 tests in `tests/`, runtime ~5 seconds, all green:
+
+```
+tests/test_config.py            4 tests   YAML loads, seeds present, splits disjoint
+tests/test_features_schema.py   3 tests   FEATURE_COLS stable
+tests/test_label_rule.py        4 tests   persistence-z thresholds work as advertised
+tests/test_lomn_detector.py     11 tests  block size, MAD, Gumbel CV, end-to-end
+tests/test_lomn_simulation.py   5 tests   seed reproducibility, noise dist, jump injection
+tests/test_lomn_size.py         2 tests   empirical 5% size, power on delta=0.02
+```
+
+Run: `python -m pytest tests/ -v`.
+
+### A3 — One-command pipeline runner
+
+`run_all.py` orchestrates all 17 stages of the pipeline (download → resample → LOMN → features → label → train → calibrate → benchmarks → significance → sensitivity → regime → plots). Idempotent — each stage skips itself if its output exists. Use `--force` to rerun.
+
+### A4 — Hand-labeling tool for Item 5
+
+`src/realdata/build_label_set.py` produces a stratified sample of 200 candidates as PNG plots + a CSV template, ready for human review. Each PNG shows the price path ±60s around the candidate, trade-flow scatter colored by aggressor side, and feature values. The user fills in `hand_label` (real/noise/ambig) in the CSV. `src/realdata/score_hand_labels.py` then computes:
+- Persistence-vs-human agreement rate
+- Confusion matrix
+- F1 of each detector against HUMAN gold
+
+Generate the labeling set: `python -m src.realdata.build_label_set`.
+Score after labels are filled in: `python -m src.realdata.score_hand_labels`.
+
+### A5 — Neural ensemble for uncertainty quantification
+
+5-member deep ensemble of MertonCNN calibrators trained with different seeds. Predicts mean ± std for each of (μ, σ, λ, μ_J, σ_J). Replaces the "λ might be biased toward prior" caveat from Phase 4 with quantified bands.
+
+| Param | Synthetic relRMSE | Mean predictive σ on real BTC |
+|---|---:|---:|
+| μ      | 0.83 | 0.0044 |
+| σ      | 0.65 | 0.0023 |
+| λ      | 0.68 | 7.3 |
+| μ_J    | 0.37 | 3.0×10⁻⁴ |
+| σ_J    | 0.78 | 2.0×10⁻⁴ |
+
+The predictive z-variance is 23–74 across parameters (target 1.0 for well-calibrated UQ), which means the ensemble *underestimates* uncertainty — a known limitation of deep ensembles (Ovadia 2019). Honest disclosure for the paper.
+
+Output: [results/phase4/ensemble_predictions_real.csv](results/phase4/ensemble_predictions_real.csv), [ensemble_uncertainty.png](results/phase4/ensemble_uncertainty.png).
+
+### A6 — Conformal prediction wrapper
+
+Split-conformal wrapper around the LOMN+XGBoost classifier (Vovk-Shafer-Lei). Calibration on the latest 20% of train days (Mar 25-26). At target miscoverage α=0.10 on the test set:
+
+- Empirical coverage: **90.78%** (matches nominal 90% within 0.8 pp — well calibrated)
+- Singleton predictions: 74.4% of test cases
+- "Uncertain" (both classes in set): 25.6%
+- **Singleton precision: 93.8%** (60 TP, **only 4 FP**) vs 91 FPs in the unwrapped XGBoost at the same recall
+
+The conformal wrapper transforms the F1 finding into a tighter false-positive-control story: when the classifier commits, it's very likely correct; when it abstains, the user knows to defer judgment. This is a clean win for the paper's "false positive control" rhetoric in Section 1.6.
+
+Output: [results/phase_a6/conformal_summary.json](results/phase_a6/conformal_summary.json), [conformal_coverage.png](results/phase_a6/conformal_coverage.png).
+
+### A7 — Hawkes process for jump clustering
+
+Replaces the Merton Poisson assumption with a self-exciting Hawkes intensity (exponential kernel). Closed-form Ozaki (1979) log-likelihood, L-BFGS-B with 10 multistart restarts.
+
+| Per-day stat | Median | Mean |
+|---|---:|---:|
+| Branching ratio (α/β) | **0.59** | 0.55 |
+| log L uplift over Poisson | 15.7 nats | — |
+| LR-test p-value vs Poisson (df=2) | 1.6e-7 | — |
+
+**13 of 15 days reject the Poisson null at p < 0.05.** This empirically falsifies the Merton model's Poisson-jump assumption on real BTC futures: jumps cluster, and each detected jump spawns ≈0.6 future jumps in expectation. Branching ratios go as high as 0.86 on Mar 27 (during the rally event window).
+
+This is a publishable standalone finding that supports the paper's "future work" direction toward Hawkes-extended jump-diffusion calibration. The intensity plot for 2024-03-27 ([hawkes_intensity.png](results/phase_a7/hawkes_intensity.png)) clearly shows the cluster structure during the 13:00–15:00 UTC rally.
+
+Outputs: [results/phase_a7/hawkes_per_day.csv](results/phase_a7/hawkes_per_day.csv), [hawkes_summary.json](results/phase_a7/hawkes_summary.json), [hawkes_intensity.png](results/phase_a7/hawkes_intensity.png).
+
+### A8 — LSTM ablation for Stage 2
+
+Two LSTM variants trained on raw 1-second log-return windows (±60s around each candidate):
+
+| Model | Test ROC AUC | F1 @ 0.5 |
+|---|---:|---:|
+| LSTM(seq) only — sequence alone           | **0.446** | 0.61 (degenerate, predicts all positive) |
+| LSTM(seq) + LOMN-stat as static feature   | 0.886 | 0.79 |
+| Raw LOMN stat alone                        | 0.886 | — |
+| **XGBoost on 14 engineered features**      | **0.902** | — |
+
+Two clean findings the paper can quote:
+
+1. **Sequence-only LSTM cannot recover signal at this sample size** (AUC 0.446 — worse than coin flip) — confirming Shwartz-Ziv & Armon (2022) and Grinsztajn et al. (2022) on tabular regimes with n < 10k.
+2. **LSTM with the LOMN stat as static input collapses to using only that feature** — the sequence carries no marginal information beyond what LOMN already extracts.
+
+Conclusion: at this sample size, deep sequence models cannot beat XGBoost on engineered features. **Add this as a 1-paragraph defensive ablation in Section 5.**
+
+Outputs: [results/phase_a8/lstm_metrics.json](results/phase_a8/lstm_metrics.json), [roc_lstm_vs_xgb.png](results/phase_a8/roc_lstm_vs_xgb.png).
+
+### Phase A summary
+
+| Item | Status | Most paper-relevant finding |
+|---|:---:|---|
+| A1 Config management        | ✅ | infrastructure |
+| A2 Pytest suite (28 tests)  | ✅ | infrastructure |
+| A3 One-command runner       | ✅ | infrastructure |
+| A4 Hand-labeling tool       | ✅ | unblocks Phase B (your task) |
+| A5 Neural ensemble UQ       | ✅ | predictive bands ± std on real BTC |
+| A6 Conformal prediction     | ✅ | 93.8% singleton precision, 4 FP vs 91 FP unwrapped |
+| A7 Hawkes process           | ✅ | **13/15 days reject Poisson; branching 0.59** |
+| A8 LSTM ablation            | ✅ | sequence-only LSTM AUC 0.45; XGBoost wins |
+
 ## What's still open
-- Phase 2 Path A live L20 capture — start when ready
-- Re-run Phase 3 + Phase 5 on Path A data when it accumulates; expect modest improvement from deep-book features but not a step change
+- Phase B — hand-label 200 candidates (your task; tool is ready under `data/handlabel/`)
+- Phase 2 Path A live L20 capture — helper task, ongoing
+- Phase C — multi-asset rerun + cross-asset lead-lag (gated on helper's data)
+- Phase D — paper revisions (expanded checklist now includes Hawkes/LSTM/conformal results)

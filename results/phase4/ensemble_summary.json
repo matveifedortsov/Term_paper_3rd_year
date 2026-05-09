@@ -1,0 +1,43 @@
+{
+  "ensemble_size": 5,
+  "n_train_per_member": 8000,
+  "epochs": 12,
+  "total_train_seconds": 1951.3631657000224,
+  "synthetic_recovery": [
+    {
+      "param": "mu",
+      "rmse_ensemble_mean": 0.023971079477978323,
+      "mean_predictive_std": 0.004747393075376749,
+      "rel_rmse": 0.8286815805029644,
+      "calibration_z_var": 38.07338989305522
+    },
+    {
+      "param": "sigma",
+      "rmse_ensemble_mean": 0.009316510769717063,
+      "mean_predictive_std": 0.001520034740678966,
+      "rel_rmse": 0.6546163233877867,
+      "calibration_z_var": 55.12621662125173
+    },
+    {
+      "param": "lambda",
+      "rmse_ensemble_mean": 18.83740723840642,
+      "mean_predictive_std": 4.937530040740967,
+      "rel_rmse": 0.6811031646812403,
+      "calibration_z_var": 22.995775947046692
+    },
+    {
+      "param": "mu_J",
+      "rmse_ensemble_mean": 0.0010598936605679663,
+      "mean_predictive_std": 0.00016501509526278824,
+      "rel_rmse": 0.3657611087313258,
+      "calibration_z_var": 74.26230782711858
+    },
+    {
+      "param": "sigma_J",
+      "rmse_ensemble_mean": 0.001013825118582893,
+      "mean_predictive_std": 0.00016158241487573832,
+      "rel_rmse": 0.7807779047382962,
+      "calibration_z_var": 54.12485691255473
+    }
+  ]
+}

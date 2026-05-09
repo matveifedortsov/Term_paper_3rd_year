@@ -1,0 +1,171 @@
+# Single source of truth for all reproducibility-relevant constants.
+#
+# Modules read this via src.config.load_config().  Anything that should be
+# tuneable for sensitivity / robustness should live here, not in code.
+#
+# Date: 2026-05-09 (Phase A foundational config)
+
+# ----------------------------------------------------------------------
+# Phase 1 — Stage 1 Monte Carlo (synthetic LOMN size/power)
+# ----------------------------------------------------------------------
+mc:
+  n: 23400               # observations per simulated day
+  T: 1.0                 # days
+  sigma: 0.03            # daily diffusion vol (BTC-realistic)
+  mu: 0.0                # daily drift
+  n_reps: 500            # Monte Carlo replications per cell
+  alpha: 0.05            # nominal test level
+  block_constant: 1.0    # h_n = round(c * n^(1/3))
+  base_seed: 20260508
+  noise_scales: [0.0005, 0.001, 0.002, 0.005]
+  jump_sizes:   [0.0, 0.0025, 0.005, 0.01, 0.02]
+
+
+# ----------------------------------------------------------------------
+# LOMN detector applied to real BTC futures
+# ----------------------------------------------------------------------
+lomn_real:
+  block_constant: 1.0     # same as MC default
+  candidate_threshold: 2.0  # |std stat| floor for emitting a candidate
+  resample_freq: "1s"     # 1 Hz grid
+
+
+# ----------------------------------------------------------------------
+# Persistence-based labels (forward-looking gold for ML training)
+# ----------------------------------------------------------------------
+label:
+  pos_persist_z: 5.0      # POSITIVE if |persistence|/scale >= this
+  neg_persist_z: 2.0      # NEGATIVE if <= this; else DROP
+  persistence_window_s: 30
+
+
+# ----------------------------------------------------------------------
+# Feature engineering
+# ----------------------------------------------------------------------
+features:
+  realvar_window_s: 60
+  trade_window_s: 5       # +/- around tau for trade-flow features
+
+
+# ----------------------------------------------------------------------
+# Train / test split
+# ----------------------------------------------------------------------
+split:
+  train_days:
+    - "2024-03-15"
+    - "2024-03-16"
+    - "2024-03-17"
+    - "2024-03-18"
+    - "2024-03-19"
+    - "2024-03-20"
+    - "2024-03-21"
+    - "2024-03-22"
+    - "2024-03-23"
+    - "2024-03-24"
+    - "2024-03-25"
+    - "2024-03-26"
+  test_days:
+    - "2024-03-27"
+    - "2024-03-28"
+    - "2024-03-29"
+
+
+# ----------------------------------------------------------------------
+# XGBoost (Stage 2 refinement)
+# ----------------------------------------------------------------------
+xgb:
+  n_estimators: 300
+  max_depth: 4
+  learning_rate: 0.05
+  subsample: 0.85
+  colsample_bytree: 0.85
+  early_stopping_rounds: 20
+  random_state: 42
+  ml_proba_threshold: 0.5
+
+
+# ----------------------------------------------------------------------
+# Neural calibration (Phase 4 1D-CNN, Phase A5 ensemble)
+# ----------------------------------------------------------------------
+neural:
+  n_train: 20000
+  n_val: 4000
+  n_test: 4000
+  batch_size: 256
+  epochs: 20
+  lr: 0.001
+  weight_decay: 1.0e-5
+  seed: 20260508
+  ensemble_size: 5        # A5: number of models in the ensemble
+  L: 1440                 # 1-minute returns per day
+
+
+# ----------------------------------------------------------------------
+# Benchmarks (Phase 5)
+# ----------------------------------------------------------------------
+benchmarks:
+  raw_lomn_threshold: 4.0
+  lee_mykland_K: 270
+  lee_mykland_alpha: 0.05
+  match_tolerance_s: 60
+
+
+# ----------------------------------------------------------------------
+# Statistical significance (Phase 6 / Item 1)
+# ----------------------------------------------------------------------
+significance:
+  n_bootstrap: 5000
+  bootstrap_seed: 20260509
+
+
+# ----------------------------------------------------------------------
+# Sensitivity sweep (Phase 6 / Item 2)
+# ----------------------------------------------------------------------
+sensitivity:
+  candidate_threshold_grid: [1.5, 2.0, 2.5, 3.0]
+  block_constant_grid: [0.5, 0.75, 1.0, 1.5, 2.0]
+  persistence_pos_z_grid: [3.0, 4.0, 5.0, 6.0]
+
+
+# ----------------------------------------------------------------------
+# Conformal prediction (Phase A6)
+# ----------------------------------------------------------------------
+conformal:
+  alpha: 0.10             # target marginal miscoverage rate
+  calibration_fraction: 0.20
+
+
+# ----------------------------------------------------------------------
+# Hawkes process (Phase A7)
+# ----------------------------------------------------------------------
+hawkes:
+  optimizer: "L-BFGS-B"
+  init_mu: 5.0e-5         # background rate (events per second)
+  init_alpha: 0.5         # branching factor (E[children per event])
+  init_beta: 0.01         # decay rate (1/sec)
+  random_starts: 10       # multistart for robustness
+
+
+# ----------------------------------------------------------------------
+# LSTM ablation (Phase A8)
+# ----------------------------------------------------------------------
+lstm:
+  hidden_size: 64
+  num_layers: 1
+  dropout: 0.2
+  window_seconds: 120     # +/- 60s around candidate -> 121 returns
+  batch_size: 64
+  epochs: 30
+  lr: 0.001
+  seed: 42
+
+
+# ----------------------------------------------------------------------
+# Paths
+# ----------------------------------------------------------------------
+paths:
+  raw_dir: "data/raw"
+  historical_dir: "data/historical"
+  interim_dir: "data/interim"
+  results_dir: "results"
+  config_dir: "config"

@@ -1,0 +1,8 @@
+{
+  "n_days_fit": 15,
+  "n_lr_significant_at_5pct": 13,
+  "median_branching": 0.5939800337140604,
+  "mean_branching": 0.5540810614507186,
+  "median_logL_uplift_per_day": 15.663627904530813,
+  "median_p_value_df2": 1.5753346827018788e-07
+}

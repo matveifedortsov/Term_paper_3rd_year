@@ -57,7 +57,7 @@ def sync(src: Path, dst: Path) -> tuple[list[str], int]:
 def main() -> None:
     total_copied: list[str] = []
     total_skipped = 0
-    for top in ["src", "docs", "results", "scripts"]:
+    for top in ["src", "docs", "results", "scripts", "tests", "config"]:
         s = SRC / top
         d = DST / top
         if not s.exists():
@@ -67,7 +67,7 @@ def main() -> None:
         total_skipped += sk
         print(f"  {top}/  +{len(c)} files (skipped {sk} .pyc)")
 
-    for f in ["README.md", "requirements.txt"]:
+    for f in ["README.md", "requirements.txt", "run_all.py"]:
         s = SRC / f
         if s.exists():
             shutil.copy2(s, DST / f)
