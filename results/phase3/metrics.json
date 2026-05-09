@@ -1,0 +1,26 @@
+{
+  "n_train": 1013,
+  "n_test": 293,
+  "scale_pos_weight": 1.6587926509186353,
+  "roc_auc_xgb": 0.9019412878787879,
+  "roc_auc_raw_lomn": 0.8861742424242424,
+  "pr_auc_xgb": 0.8615535361611304,
+  "pr_auc_raw_lomn": 0.8746369120707727,
+  "fpr_at_recall_90_xgb": {
+    "recall": 0.9140625,
+    "fpr": 0.2787878787878788,
+    "threshold": 0.29204878211021423
+  },
+  "fpr_at_recall_90_raw_lomn": {
+    "recall": 0.90625,
+    "fpr": 0.3333333333333333,
+    "threshold": 2.6218071196735755
+  },
+  "fpr_reduction_pct": 16.363636363636353,
+  "confusion_matrix_thr_0_5": {
+    "TN": 148,
+    "FP": 17,
+    "FN": 38,
+    "TP": 90
+  }
+}

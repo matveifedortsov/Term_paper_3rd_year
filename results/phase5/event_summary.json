@@ -1,0 +1,9 @@
+{
+  "events_total": 5,
+  "hits_per_method": {
+    "raw_lomn": 5,
+    "lee_mykland": 5,
+    "lomn_xgb": 5,
+    "pure_ml": 5
+  }
+}

@@ -1,0 +1,8 @@
+{
+  "n_test": 1000,
+  "neural_total_s": 1.3236327000049641,
+  "neural_us_per_path": 1323.6327000049641,
+  "mle_total_s": 0.5381942999956664,
+  "mle_us_per_path": 538.1942999956664,
+  "neural_speedup_vs_mle": 0.406603961955343
+}
