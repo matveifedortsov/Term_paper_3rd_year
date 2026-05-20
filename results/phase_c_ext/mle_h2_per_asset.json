@@ -1,0 +1,20 @@
+{
+  "BTCUSDT": {
+    "lambda_std_reduction_pct": -6.7639312374463785,
+    "mu_J_std_reduction_pct": 47.08432401354032,
+    "sigma_J_std_reduction_pct": 26.12690097832923,
+    "sigma_std_reduction_pct": 0.21850787525702256
+  },
+  "ETHUSDT": {
+    "lambda_std_reduction_pct": -19.43651807933321,
+    "mu_J_std_reduction_pct": 38.96158029770088,
+    "sigma_J_std_reduction_pct": 29.990585298309824,
+    "sigma_std_reduction_pct": 0.06819285400087724
+  },
+  "SOLUSDT": {
+    "lambda_std_reduction_pct": -54.71234566494865,
+    "mu_J_std_reduction_pct": 50.41464434230488,
+    "sigma_J_std_reduction_pct": 29.283984735034355,
+    "sigma_std_reduction_pct": 0.0962899109903967
+  }
+}

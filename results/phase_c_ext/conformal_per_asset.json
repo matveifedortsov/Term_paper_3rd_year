@@ -1,0 +1,144 @@
+{
+  "BTCUSDT": {
+    "fit_days": [
+      "2025-05-01",
+      "2026-05-01",
+      "2026-05-02",
+      "2026-05-03",
+      "2026-05-04",
+      "2026-05-05",
+      "2026-05-06",
+      "2026-05-07",
+      "2026-05-08",
+      "2026-05-09",
+      "2026-05-10"
+    ],
+    "cal_days": [
+      "2026-05-11",
+      "2026-05-12"
+    ],
+    "test_days": [
+      "2026-05-13",
+      "2026-05-14"
+    ],
+    "n_fit": 1483,
+    "n_cal": 222,
+    "n_test": 207,
+    "q_hat": 0.6809676885604858,
+    "cal_metrics": {
+      "coverage": 0.9054054054054054,
+      "avg_set_size": 1.135135135135135,
+      "abstain_rate": 0.13513513513513514,
+      "size_zero_pct": 0.0,
+      "size_one_pct": 0.8648648648648649,
+      "size_two_pct": 0.13513513513513514
+    },
+    "test_metrics": {
+      "coverage": 0.8985507246376812,
+      "avg_set_size": 1.1207729468599035,
+      "abstain_rate": 0.12077294685990338,
+      "size_zero_pct": 0.0,
+      "size_one_pct": 0.8792270531400966,
+      "size_two_pct": 0.12077294685990338
+    },
+    "singleton_precision": 0.8450704225352113,
+    "singleton_recall_global": 0.7692307692307693,
+    "singleton_TP": 60,
+    "singleton_FP": 11,
+    "singleton_FN_global": 18
+  },
+  "ETHUSDT": {
+    "fit_days": [
+      "2026-05-01",
+      "2026-05-02",
+      "2026-05-03",
+      "2026-05-04",
+      "2026-05-05",
+      "2026-05-06",
+      "2026-05-07",
+      "2026-05-08",
+      "2026-05-09",
+      "2026-05-10"
+    ],
+    "cal_days": [
+      "2026-05-11",
+      "2026-05-12"
+    ],
+    "test_days": [
+      "2026-05-13",
+      "2026-05-14"
+    ],
+    "n_fit": 1108,
+    "n_cal": 197,
+    "n_test": 187,
+    "q_hat": 0.6948009133338928,
+    "cal_metrics": {
+      "coverage": 0.9086294416243654,
+      "avg_set_size": 1.1776649746192893,
+      "abstain_rate": 0.17766497461928935,
+      "size_zero_pct": 0.0,
+      "size_one_pct": 0.8223350253807107,
+      "size_two_pct": 0.17766497461928935
+    },
+    "test_metrics": {
+      "coverage": 0.93048128342246,
+      "avg_set_size": 1.1336898395721926,
+      "abstain_rate": 0.13368983957219252,
+      "size_zero_pct": 0.0,
+      "size_one_pct": 0.8663101604278075,
+      "size_two_pct": 0.13368983957219252
+    },
+    "singleton_precision": 0.9019607843137255,
+    "singleton_recall_global": 0.7076923076923077,
+    "singleton_TP": 46,
+    "singleton_FP": 5,
+    "singleton_FN_global": 19
+  },
+  "SOLUSDT": {
+    "fit_days": [
+      "2026-05-01",
+      "2026-05-02",
+      "2026-05-03",
+      "2026-05-04",
+      "2026-05-05",
+      "2026-05-06",
+      "2026-05-07",
+      "2026-05-08",
+      "2026-05-09",
+      "2026-05-10"
+    ],
+    "cal_days": [
+      "2026-05-11",
+      "2026-05-12"
+    ],
+    "test_days": [
+      "2026-05-13",
+      "2026-05-14"
+    ],
+    "n_fit": 1217,
+    "n_cal": 212,
+    "n_test": 250,
+    "q_hat": 0.6306055784225464,
+    "cal_metrics": {
+      "coverage": 0.9056603773584906,
+      "avg_set_size": 1.099056603773585,
+      "abstain_rate": 0.09905660377358491,
+      "size_zero_pct": 0.0,
+      "size_one_pct": 0.9009433962264151,
+      "size_two_pct": 0.09905660377358491
+    },
+    "test_metrics": {
+      "coverage": 0.888,
+      "avg_set_size": 1.1,
+      "abstain_rate": 0.1,
+      "size_zero_pct": 0.0,
+      "size_one_pct": 0.9,
+      "size_two_pct": 0.1
+    },
+    "singleton_precision": 0.8,
+    "singleton_recall_global": 0.8275862068965517,
+    "singleton_TP": 72,
+    "singleton_FP": 18,
+    "singleton_FN_global": 15
+  }
+}

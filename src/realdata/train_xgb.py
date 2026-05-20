@@ -49,6 +49,37 @@ FEATURE_COLS = [
     "f_n_trades_pm5s",
 ]
 
+# Bucket / L20 features produced by features.build_features_for_day when
+# the book has the L20 schema. Keep the names stable for downstream tests.
+BUCKET_BP_EDGES = (0, 1, 2, 5, 10, 25, 50, 100, 500)
+BUCKET_RAW_COLS = [
+    f"{side}_{int(BUCKET_BP_EDGES[i])}_{int(BUCKET_BP_EDGES[i + 1])}bp"
+    for i in range(len(BUCKET_BP_EDGES) - 1)
+    for side in ("bid", "ask")
+]
+BUCKET_DERIVED_COLS = [
+    *[f"f_imb_{int(BUCKET_BP_EDGES[i])}_{int(BUCKET_BP_EDGES[i + 1])}bp"
+      for i in range(len(BUCKET_BP_EDGES) - 1)],
+    *[f"f_cumimb_{int(BUCKET_BP_EDGES[i + 1])}bp"
+      for i in range(len(BUCKET_BP_EDGES) - 1)],
+    "f_total_depth_bid_100bp",
+    "f_total_depth_ask_100bp",
+    "f_book_slope_bid",
+    "f_book_slope_ask",
+    "f_book_skew",
+    "f_inner5_share_bid",
+    "f_inner5_share_ask",
+]
+FEATURE_COLS_L20 = FEATURE_COLS + BUCKET_RAW_COLS + BUCKET_DERIVED_COLS
+
+
+def select_feature_cols(df) -> list[str]:
+    """Return FEATURE_COLS_L20 if all bucket cols exist, else FEATURE_COLS."""
+    bucket_cols = BUCKET_RAW_COLS + BUCKET_DERIVED_COLS
+    if all(c in df.columns for c in bucket_cols):
+        return FEATURE_COLS_L20
+    return FEATURE_COLS
+
 TRAIN_DAYS = [
     "2024-03-15", "2024-03-16", "2024-03-17", "2024-03-18",
     "2024-03-19", "2024-03-20", "2024-03-21", "2024-03-22",

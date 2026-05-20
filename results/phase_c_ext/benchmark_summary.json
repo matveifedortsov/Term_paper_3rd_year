@@ -1,0 +1,42 @@
+{
+  "F1_by_method_x_asset": {
+    "BTCUSDT": {
+      "raw_lomn": 0.5828571428571429,
+      "lee_mykland": 0.020509533728569142,
+      "lomn_xgb": 0.46715328467153283,
+      "pure_ml": 0.4372990353697749
+    },
+    "ETHUSDT": {
+      "raw_lomn": 0.6285714285714286,
+      "lee_mykland": 0.016019086571233812,
+      "lomn_xgb": 0.5384615384615384,
+      "pure_ml": 0.4365079365079365
+    },
+    "SOLUSDT": {
+      "raw_lomn": 0.6041666666666666,
+      "lee_mykland": 0.020976925382079716,
+      "lomn_xgb": 0.4597014925373135,
+      "pure_ml": 0.41359773371104813
+    }
+  },
+  "FP_by_method_x_asset": {
+    "BTCUSDT": {
+      "raw_lomn": 46,
+      "lee_mykland": 6099,
+      "lomn_xgb": 132,
+      "pure_ml": 165
+    },
+    "ETHUSDT": {
+      "raw_lomn": 31,
+      "lee_mykland": 5756,
+      "lomn_xgb": 87,
+      "pure_ml": 132
+    },
+    "SOLUSDT": {
+      "raw_lomn": 47,
+      "lee_mykland": 6517,
+      "lomn_xgb": 171,
+      "pure_ml": 193
+    }
+  }
+}

@@ -48,6 +48,24 @@ features:
 
 
 # ----------------------------------------------------------------------
+# Book-aggregation features (Phase C / Schema 2: percentage-distance)
+# ----------------------------------------------------------------------
+#
+# Tick-size-invariant aggregation: bucket resting depth by relative
+# distance from mid (in basis points), then derive cumulative-depth,
+# slope, and skew features.  Same bucket grid works for BTC, ETH, SOL.
+#
+# Edges are log-spaced: liquidity concentrates near mid, so finer
+# resolution close in, coarser further out.  With L20 snapshots only
+# the inner 4-5 buckets are populated (L20 spans ~7-30 bp on BTC); the
+# tail buckets light up when full-depth incremental L2 data is wired
+# in via reconstruct_book.py.
+bucket:
+  bp_edges: [0, 1, 2, 5, 10, 25, 50, 100, 500]
+  source: "snapshot"   # "snapshot" (L20 partial) | "incremental" (full depth)
+
+
+# ----------------------------------------------------------------------
 # Train / test split
 # ----------------------------------------------------------------------
 split:

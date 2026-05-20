@@ -1,0 +1,29 @@
+[
+  {
+    "symbol": "BTCUSDT",
+    "n_days_fit": 15,
+    "n_lr_significant_5pct": 14,
+    "median_branching": 0.730457032624428,
+    "mean_branching": 0.6558582307530335,
+    "median_logL_uplift": 21.214923249643988,
+    "median_p_value": 6.116118722587771e-10
+  },
+  {
+    "symbol": "ETHUSDT",
+    "n_days_fit": 14,
+    "n_lr_significant_5pct": 14,
+    "median_branching": 0.6073095768863297,
+    "mean_branching": 0.5840356244481694,
+    "median_logL_uplift": 13.898114966071972,
+    "median_p_value": 1.0996648796002262e-06
+  },
+  {
+    "symbol": "SOLUSDT",
+    "n_days_fit": 14,
+    "n_lr_significant_5pct": 14,
+    "median_branching": 0.6683799385295592,
+    "mean_branching": 0.6424089853836202,
+    "median_logL_uplift": 18.324256047080866,
+    "median_p_value": 2.115607888875104e-08
+  }
+]

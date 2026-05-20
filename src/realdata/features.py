@@ -98,6 +98,11 @@ def _trade_features(trades: pd.DataFrame, ts_ns: int, window_ns: int) -> dict:
     }
 
 
+def _has_l20_schema(book: pd.DataFrame) -> bool:
+    return "bid_p1" in book.columns and "bid_p20" in book.columns \
+        and "ask_p1" in book.columns and "ask_p20" in book.columns
+
+
 def build_features_for_day(
     cands: pd.DataFrame,
     book: pd.DataFrame,
@@ -116,6 +121,17 @@ def build_features_for_day(
     ask_q = book["ask_q"].values
 
     book_ts0_ns = int(book_ts_ns.iloc[0])
+
+    # Detect L20 schema once; if present we'll add bucket features per candidate
+    has_l20 = _has_l20_schema(book)
+    if has_l20:
+        # Lazy import so the L1 path never pays the cost
+        from src.realdata.bucket_aggregate import (
+            DEFAULT_BP_EDGES,
+            aggregate_from_snapshot_row,
+            bucket_features,
+        )
+        bp_edges = DEFAULT_BP_EDGES
 
     rows = []
     cand_ts_ns = cands["ts"].astype("int64").values * 1_000_000  # ms -> ns
@@ -158,6 +174,15 @@ def build_features_for_day(
         }
         feat.update(_vol_features(log_mid, idx, REALVAR_WINDOW_S))
         feat.update(_trade_features(trades, ts_ns, trade_window_ns))
+
+        # Bucket-aggregated L20 features (only if the book has them)
+        if has_l20:
+            bucket_row = aggregate_from_snapshot_row(
+                book.iloc[idx], n_levels=20, bp_edges=bp_edges,
+            )
+            feat.update(bucket_row)
+            feat.update(bucket_features(bucket_row, bp_edges=bp_edges))
+
         rows.append(feat)
 
     return pd.DataFrame(rows)
